@@ -62,7 +62,7 @@ services:
     restart: unless-stopped
     
     ports:
-      - "5520:5520"
+      - "5520:5520/udp"
     
     volumes:
       - ./data:/data
@@ -70,11 +70,8 @@ services:
     environment:
       SERVER_NAME: "My Hytale Server"
       PORT: "5520"
-      PATCHLINE: "release"
       PASSWORD: "secret123"
-      MAX_PLAYERS: "50"
       UPDATE_ON_STARTUP: "true"
-      REFRESH_INTERVAL: "86400"
       
     stdin_open: true
     tty: true
