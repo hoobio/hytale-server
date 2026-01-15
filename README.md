@@ -15,11 +15,14 @@ docker compose up -d
 docker compose logs -f
 ```
 
-On first run, you'll be prompted to authenticate:
+On first run, you'll be prompted to authenticate twice. Once to download the server, and second to authenticate your game session.
+
 1. Open the provided URL in your browser
 2. Enter the displayed code
 3. Sign in with your Hytale account
 4. The server will start automatically after authentication
+
+You should not be prompted again to authenticate, this image will maintain a refresh token and automatically authenticate.
 
 ## Configuration
 
