@@ -85,6 +85,16 @@ Once finished, the container will save your refresh token to `/data/credentials.
 | `LOG_FILTERS` | | Regex patterns (pipe-separated) to hide from logs. |
 | `PUID` / `PGID` | `1000` | User/Group ID for file permissions (matches host user). |
 
+### Backup Settings
+*Configure automatic server backups.*
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BACKUPS_ENABLED` | `true` | Enable automatic backups. Set to `true` to enable. |
+| `BACKUP_DIR` | `/data/backups` | Directory where backups are stored. |
+| `BACKUP_FREQUENCY` | `30` | Backup interval in minutes. |
+| `BACKUP_MAX_COUNT` | `5` | Maximum number of backups to retain. |
+
 ---
 
 ## 📂 Storage & Volumes

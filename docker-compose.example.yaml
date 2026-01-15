@@ -27,6 +27,12 @@ services:
       UPDATE_ON_STARTUP: "true"  # Check for server updates on startup (default: true)
       REFRESH_INTERVAL: "86400"  # Token refresh interval in seconds (default: 86400 = 24 hours)
       
+      # Backup settings (optional)
+      BACKUPS_ENABLED: "true"  # Enable automatic backups (default: true)
+      BACKUP_DIR: "/data/backups"  # Directory to store backups (default: /data/backups)
+      BACKUP_FREQUENCY: "30"  # Backup frequency in minutes (default: 30)
+      BACKUP_MAX_COUNT: "5"  # Maximum number of backups to keep (default: 5)
+      
       # User/Group IDs (optional, defaults to 1000)
       # PUID: "1000"  # User ID for file ownership
       # PGID: "1000"  # Group ID for file ownership

@@ -67,7 +67,6 @@ device_flow_auth() {
         if [ -z "$ERROR" ]; then
             ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
             echo "{\"refreshToken\":\"$(echo "$TOKEN_RESPONSE" | jq -r '.refresh_token')\"}" > "$CREDENTIALS_FILE"
-            echo "Authentication successful!"
             return 0
         elif [ "$ERROR" != "authorization_pending" ] && [ "$ERROR" != "slow_down" ]; then
             echo "Authentication failed: $ERROR"
@@ -119,8 +118,7 @@ setup_game_session() {
     return 0
 }
 
-cmd_init() {
-    exec 3>&1 1>&2
+cmd_auth() {
     ACCESS_TOKEN=""
     
     if [ -f "$CREDENTIALS_FILE" ]; then
@@ -132,12 +130,26 @@ cmd_init() {
     fi
     
     [ -z "$ACCESS_TOKEN" ] && { device_flow_auth || exit 1; }
+}
+
+cmd_session() {
+    exec 3>&1 1>&2
+    ACCESS_TOKEN=""
+    
+    [ ! -f "$CREDENTIALS_FILE" ] && { echo "Not authenticated. Run 'auth' first."; exit 1; }
+    
+    refresh_oauth_token "" || { echo "Failed to refresh token"; exit 1; }
     setup_game_session || { echo "Failed to set up game session"; exit 1; }
     
-    echo "Authentication complete!"
+    echo "Game session created!"
     echo "export SESSION_TOKEN='$SESSION_TOKEN'" >&3
     echo "export IDENTITY_TOKEN='$IDENTITY_TOKEN'" >&3
     echo "export OWNER_UUID='$OWNER_UUID'" >&3
+}
+
+cmd_init() {
+    cmd_auth
+    cmd_session
 }
 
 cmd_refresh_daemon() {   
@@ -174,9 +186,11 @@ cmd_generate_downloader_creds() {
 
 COMMAND="${1:-init}"
 case "$COMMAND" in
+    auth) cmd_auth ;;
+    session) cmd_session ;;
     init) cmd_init ;;
     refresh-daemon) cmd_refresh_daemon ;;
     refresh-once) cmd_refresh_once ;;
     generate-downloader-creds) shift; cmd_generate_downloader_creds "$@" ;;
-    *) echo "Usage: $0 {init|refresh-daemon|refresh-once|generate-downloader-creds}"; exit 1 ;;
+    *) echo "Usage: $0 {auth|session|init|refresh-daemon|refresh-once|generate-downloader-creds}"; exit 1 ;;
 esac

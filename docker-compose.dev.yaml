@@ -23,6 +23,12 @@ services:
       UPDATE_ON_STARTUP: "false"  # Set to false for faster dev restarts
       REFRESH_INTERVAL: "10"  # Token refresh interval in seconds (dev: 10s, prod: 86400s)
       
+      # Backup settings
+      BACKUPS_ENABLED: "true"  # Enable automatic backups
+      BACKUP_DIR: "/data/backups"  # Directory to store backups
+      BACKUP_FREQUENCY: "30"  # Backup frequency in minutes
+      BACKUP_MAX_COUNT: "5"  # Maximum number of backups to keep
+      
       # User/Group IDs
       # PUID: "1000"
       # PGID: "1000"
