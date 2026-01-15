@@ -1,66 +1,23 @@
 # Hytale Server Docker Container
 
 [![Build and Publish Docker Image](https://github.com/hoobio/hytale-server/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/hoobio/hytale-server/actions/workflows/docker-publish.yml)
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hoobio/hytale-server)](https://hub.docker.com/r/hoobio/hytale-server)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/hoobio/hytale-server)](https://hub.docker.com/r/hoobio/hytale-server)
 [![Docker Pulls](https://img.shields.io/docker/pulls/hoobio/hytale-server)](https://hub.docker.com/r/hoobio/hytale-server)
+[![GitHub last commit](https://img.shields.io/github/last-commit/hoobio/hytale-server)](https://github.com/hoobio/hytale-server/commits/main)
 [![GitHub issues](https://img.shields.io/github/issues/hoobio/hytale-server)](https://github.com/hoobio/hytale-server/issues)
+[![License](https://img.shields.io/github/license/hoobio/hytale-server)](https://github.com/hoobio/hytale-server/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/hoobio/hytale-server?style=social)](https://github.com/hoobio/hytale-server/stargazers)
 
-A Docker container for running a Hytale dedicated server with automated OAuth authentication, token refresh, and server management.
+A Docker container for running a Hytale dedicated server. Features **automated OAuth authentication**, token refreshing, log filtering, and automatic updates.
 
-## Quick Start
+---
 
-```bash
-# Create docker-compose.yaml
-curl -o docker-compose.yaml https://raw.githubusercontent.com/hoobio/hytale-server/main/docker-compose.example.yaml
+## 🚀 Usage
 
-# Start the container
-docker compose up -d
+### 1. Docker Compose (Recommended)
 
-# Follow authentication prompts in logs
-docker compose logs -f
-```
-
-On first run, you'll be prompted to authenticate twice. Once to download the server, and second to authenticate your game session.
-
-1. Open the provided URL in your browser
-2. Enter the displayed code
-3. Sign in with your Hytale account
-4. The server will start automatically after authentication
-
-You should not be prompted again to authenticate, this image will maintain a refresh token and automatically authenticate.
-
-## Configuration
-
-All configuration is done through environment variables in your `docker-compose.yaml` file.
-
-### Server Configuration
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SERVER_NAME` | `"Hoobio Hytale Server"` | Your server's display name |
-| `PORT` | `5520` | Server port (must match port mapping) |
-
-### Server Settings (Optional)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PATCHLINE` | `release` | Server version channel: `release` or `pre-release` |
-| `MOTD` | `""` | Message of the day shown to connecting players |
-| `PASSWORD` | `""` | Server password (empty = no password required) |
-| `MAX_PLAYERS` | `100` | Maximum concurrent players allowed |
-| `MAX_VIEW_RADIUS` | `32` | Maximum view distance in chunks |
-
-### Container Behavior (Optional)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `UPDATE_ON_STARTUP` | `true` | Check for and download server updates on startup |
-| `REFRESH_INTERVAL` | `86400` | OAuth token refresh interval in seconds (24 hours) |
-| `PUID` | `1000` | User ID for file ownership |
-| `PGID` | `1000` | Group ID for file ownership |
-| `LOG_FILTERS` | | Pipe-separated regex patterns to filter from logs |
-
-### Example Configuration
+Copy the following into a `docker-compose.yaml` file, or reference [docker-compose.example.yaml](docker-compose.example.yaml)
 
 ```yaml
 services:
@@ -68,129 +25,119 @@ services:
     image: ghcr.io/hoobio/hytale-server:latest
     container_name: hytale-server
     restart: unless-stopped
-    
     ports:
       - "5520:5520/udp"
-    
     volumes:
       - ./data:/data
-    
     environment:
+      # Game Settings
       SERVER_NAME: "My Hytale Server"
       PORT: "5520"
-      PASSWORD: "secret123"
-      UPDATE_ON_STARTUP: "true"
+      PASSWORD: "changeme"
+      MAX_PLAYERS: "100"
       
+      # Container Settings
+      UPDATE_ON_STARTUP: "false" # Set to false if you don't want to download the 1.5gb binary every launch
+      PUID: "1000"
+      PGID: "1000"
+    
     stdin_open: true
     tty: true
 ```
 
-## Features
+### 2. Start and Authenticate
 
-- **Automated OAuth Authentication**: Device flow authentication with automatic token refresh
-- **Token Management**: Secure refresh token storage with daily rotation (configurable)
-- **Automatic Updates**: Optional server binary updates on startup
-- **Log Filtering**: Built-in filtering of common spam warnings, extensible via `LOG_FILTERS`
-- **Graceful Shutdown**: Proper cleanup of background processes and server state
-- **File Permissions**: Configurable UID/GID for proper file ownership
-
-## Volume Mounts
-
-The container uses `/data` for persistent storage:
-
-```
-/data/
-├── server/           # Hytale server binaries and files
-├── credentials.json  # OAuth refresh token (keep secure!)
-└── ...              # Server data and world files
-```
-
-**Important**: Keep `credentials.json` secure. It contains your refresh token for Hytale account authentication.
-
-## Port Mapping
-
-The container exposes port 5520 by default. Ensure your `PORT` environment variable matches your port mapping:
-
-```yaml
-ports:
-  - "25565:25565"  # Custom port example
-environment:
-  PORT: "25565"
-```
-
-## Authentication
-
-The container uses OAuth device flow for authentication:
-
-1. **First Run**: You'll be prompted to authenticate via browser
-2. **Token Storage**: Refresh token is saved to `/data/credentials.json`
-3. **Auto Refresh**: Token is automatically refreshed based on `REFRESH_INTERVAL`
-4. **Re-authentication**: Delete `credentials.json` to re-authenticate
-
-### Manual Re-authentication
+Start the container and attach to the logs to see the authentication prompts:
 
 ```bash
-docker compose exec hytale-server rm /data/credentials.json
-docker compose restart
+docker compose up -d
+docker compose logs -f
+
 ```
 
-## Log Filtering
+**⚠️ You must authenticate manually on the first run**
+Once finished, the container will save your refresh token to `/data/credentials.json` and handle future authentication automatically.
 
-The container automatically filters common spam warnings. To add custom filters:
+---
 
+## ⚙️ Configuration
+
+### Game Settings
+*Configure the in-game experience.*
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SERVER_NAME` | `Hoobio Hytale Server` | The display name of your server. |
+| `PORT` | `5520` | Internal server port (ensure this matches `ports` mapping). |
+| `PASSWORD` | `""` | Server password (leave empty to disable). |
+| `MOTD` | `""` | Message of the Day displayed to players. |
+| `MAX_PLAYERS` | `100` | Maximum concurrent players. |
+| `MAX_VIEW_RADIUS`| `32` | Max view distance in chunks. |
+| `PATCHLINE` | `release` | `release` or `pre-release`. |
+
+### Container Settings
+*Configure how the Docker container behaves.*
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `UPDATE_ON_STARTUP`| `true` | Download server updates every time the container starts. |
+| `REFRESH_INTERVAL` | `86400` | How often to refresh the OAuth token (seconds). |
+| `LOG_FILTERS` | | Regex patterns (pipe-separated) to hide from logs. |
+| `PUID` / `PGID` | `1000` | User/Group ID for file permissions (matches host user). |
+
+---
+
+## 📂 Storage & Volumes
+
+The container stores all persistent data in `/data`.
+
+```text
+/data/
+├── server/           # The actual Hytale server binaries
+├── credentials.json  # YOUR OAUTH TOKEN (Keep this safe!)
+└── ...               # World files and configs
+```
+
+> **Security Note:** Back up `credentials.json`. If you lose it, you must re-authenticate. If it is stolen, others can use your session.
+
+---
+
+## 🛠️ Operations & Management
+
+### Manual Re-authentication
+If your token expires or you wish to switch accounts:
+
+1.  Remove the credentials file:
+    ```bash
+    docker compose exec hytale-server rm /data/credentials.json
+    ```
+2.  Restart the container and follow the "Start and Authenticate" steps again:
+    ```bash
+    docker compose restart && docker compose logs -f
+    ```
+
+### Log Filtering
+The server can be noisy. You can filter logs using `grep` regex syntax in the `LOG_FILTERS` variable.
+
+**Example:** Hide connection timeouts and debug messages:
 ```yaml
 environment:
-  # Filter connection timeouts and debug messages
   LOG_FILTERS: "ERROR.*connection timeout|DEBUG.*verbose"
 ```
 
-Filters use grep extended regex syntax, separated by pipes (`|`).
+### Troubleshooting
 
-## Troubleshooting
+| Issue | Solution |
+|-------|----------|
+| **Server won't start** | Check logs (`docker compose logs -f`). If auth failed, delete `credentials.json` and restart. |
+| **Port in use** | If port 5520 is taken, map a different host port: `"25565:5520"`. |
+| **Permission Denied** | Ensure `PUID` and `PGID` match the user running Docker (`id -u` / `id -g`). |
 
-### Server won't start after authentication
-- Check logs: `docker compose logs -f`
-- Verify credentials: `docker compose exec hytale-server cat /data/credentials.json`
-- Try re-authentication by deleting credentials.json
+---
 
-### Port already in use
-- Change the host port in port mapping: `"25565:5520"`
-- Or change the server port: `PORT: "25565"` (update both port mapping and environment)
+## 🔗 Links
 
-### Permission errors
-- Set `PUID` and `PGID` to match your host user:
-  ```bash
-  PUID: "1000"
-  PGID: "1000"
-  ```
+- **Issues:** [GitHub Issues](https://github.com/hoobio/hytale-server/issues)
+- **Official Site:** [Hytale.com](https://hytale.com)
 
-### Updates not applying
-- Ensure `UPDATE_ON_STARTUP: "true"`
-- Check available disk space
-- Manually trigger update: `docker compose restart`
-
-## Development
-
-For development/testing, use a shorter refresh interval:
-
-```yaml
-environment:
-  UPDATE_ON_STARTUP: "false"  # Skip updates for faster restarts
-  REFRESH_INTERVAL: "10"      # Refresh every 10 seconds
-```
-
-## Security Notes
-
-- **credentials.json**: Contains sensitive OAuth tokens - keep secure and backed up
-- **Password**: Use strong passwords if setting `PASSWORD` environment variable
-- **Network**: Consider using a firewall or reverse proxy for internet-facing servers
-- **Updates**: Keep the container image updated for security patches
-
-## Support
-
-- **Issues**: https://github.com/hoobio/hytale-server/issues
-- **Hytale**: https://hytale.com
-
-## License
-
-This container is provided as-is for running Hytale servers. Hytale is a trademark of Hypixel Studios.
+_Hytale is a trademark of Hypixel Studios. This project is not affiliated with Hypixel Studios._
