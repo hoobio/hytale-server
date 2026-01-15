@@ -156,14 +156,27 @@ cmd_refresh_once() {
     [ -f "$CREDENTIALS_FILE" ] && refresh_oauth_token "" || echo "No credentials file found"
 }
 
+cmd_generate_downloader_creds() {
+    DOWNLOADER_CREDS_FILE="${1:-/data/server/.hytale-downloader-credentials.json}"
+    PATCHLINE="${2:-release}"
+    
+    [ ! -f "$CREDENTIALS_FILE" ] && { echo "Credentials file not found. Run 'init' first."; exit 1; }
+    
+    refresh_oauth_token "" || { echo "Failed to refresh token"; exit 1; }
+    
+    local REFRESH_TOKEN=$(jq -r '.refreshToken // empty' "$CREDENTIALS_FILE")
+    local EXPIRES_AT=$(($(date +%s) + 3600))
+    
+    echo "{\"access_token\":\"$ACCESS_TOKEN\",\"refresh_token\":\"$REFRESH_TOKEN\",\"expires_at\":$EXPIRES_AT,\"branch\":\"$PATCHLINE\"}" > "${DOWNLOADER_CREDS_FILE}.tmp" && \
+        mv "${DOWNLOADER_CREDS_FILE}.tmp" "$DOWNLOADER_CREDS_FILE"
+    echo "Generated credentials file: $DOWNLOADER_CREDS_FILE"
+}
+
 COMMAND="${1:-init}"
 case "$COMMAND" in
     init) cmd_init ;;
     refresh-daemon) cmd_refresh_daemon ;;
     refresh-once) cmd_refresh_once ;;
-    *) echo "Usage: $0 {init|refresh-daemon|refresh-once}"; exit 1 ;;
-esac
-        echo "Usage: $0 {init|refresh-daemon|refresh-once}"
-        exit 1
-        ;;
+    generate-downloader-creds) shift; cmd_generate_downloader_creds "$@" ;;
+    *) echo "Usage: $0 {init|refresh-daemon|refresh-once|generate-downloader-creds}"; exit 1 ;;
 esac

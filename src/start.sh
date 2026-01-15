@@ -31,6 +31,10 @@ elif [ ! -f /data/server/Assets.zip ] || [ ! -f /data/server/HytaleServer.jar ];
 fi
 
 if [ "$SHOULD_UPDATE" = "true" ]; then
+    echo "Authenticating for downloader..."
+    /scripts/auth-manager.sh auth
+    /scripts/auth-manager.sh generate-downloader-creds /data/server/.hytale-downloader-credentials.json $PATCHLINE
+    
     echo "Starting Hytale downloader..."
     cd /data/server
     ./hytale-downloader-linux-amd64 -check-update
@@ -54,10 +58,11 @@ jq --arg serverName "$SERVER_NAME" \
    '.ServerName = $serverName | .MOTD = $motd | .Password = $password | .MaxPlayers = $maxPlayers | .MaxViewRadius = $maxViewRadius' \
    /data/config.json > /data/config.json.tmp && mv /data/config.json.tmp /data/config.json
 
+echo "Creating game session..."
+eval "$(/scripts/auth-manager.sh session)"
+
 echo "Starting Hytale server..."
 cd /data
-
-eval "$(/scripts/auth-manager.sh init)"
 
 /scripts/auth-manager.sh refresh-daemon 2>&1 &
 TOKEN_REFRESH_PID=$!
