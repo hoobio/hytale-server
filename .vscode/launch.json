@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Dev Container",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "podman",
+            "runtimeArgs": [
+                "compose",
+                "-f",
+                "docker-compose.dev.yaml",
+                "up",
+                "--build"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Stop Dev Container"
+        }
+    ]
+}

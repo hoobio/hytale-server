@@ -1,0 +1,34 @@
+services:
+  hytale-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hytale-server-dev
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+    environment:
+      # Server configuration
+      SERVER_NAME: "Hytale Dev Server"
+      PORT: "5520"
+      PATCHLINE: "release"  # Options: release, beta, alpha
+      
+      # Server settings
+      MOTD: ""  # Message of the day
+      PASSWORD: ""  # Server password (empty = no password)
+      MAX_PLAYERS: "100"
+      MAX_VIEW_RADIUS: "32"
+      
+      # Container behavior
+      UPDATE_ON_STARTUP: "false"  # Set to false for faster dev restarts
+      REFRESH_INTERVAL: "10"  # Token refresh interval in seconds (dev: 10s, prod: 86400s)
+      
+      # User/Group IDs
+      # PUID: "1000"
+      # PGID: "1000"
+      
+      # Log filtering (pipe-separated regex patterns)
+      # LOG_FILTERS: "ERROR.*connection timeout|DEBUG.*verbose"
+    
+    stdin_open: true
+    tty: true

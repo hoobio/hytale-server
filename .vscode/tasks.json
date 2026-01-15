@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Stop Dev Container",
+            "type": "shell",
+            "command": "podman",
+            "args": [
+                "compose",
+                "-f",
+                "docker-compose.dev.yaml",
+                "down"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        }
+    ]
+}
