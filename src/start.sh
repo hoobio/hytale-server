@@ -9,6 +9,10 @@ PASSWORD=${PASSWORD:-}
 MAX_PLAYERS=${MAX_PLAYERS:-100}
 MAX_VIEW_RADIUS=${MAX_VIEW_RADIUS:-32}
 UPDATE_ON_STARTUP=${UPDATE_ON_STARTUP:-true}
+BACKUPS_ENABLED=${BACKUPS_ENABLED:-true}
+BACKUP_DIR=${BACKUP_DIR:-/data/backups}
+BACKUP_FREQUENCY=${BACKUP_FREQUENCY:-30}
+BACKUP_MAX_COUNT=${BACKUP_MAX_COUNT:-5}
 
 DEFAULT_FILTERS="WARN.*Unused key\(s\) in|WARN.*Animation.*does not exist|WARN.*Asset key.*has incorrect format|WARN.*Creating block sets.*Failed to find.*|WARN.*Unknown channel option|WARN.*Duplicate export name for asset|WARN.*Failed to validate asset"
 LOG_FILTER_PATTERN="${DEFAULT_FILTERS}${LOG_FILTERS:+|$LOG_FILTERS}"
@@ -77,4 +81,11 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-java -jar /data/server/HytaleServer.jar -b 0.0.0.0:$PORT --assets /data/server/Assets.zip --session-token "$SESSION_TOKEN" --identity-token "$IDENTITY_TOKEN" --owner-uuid "$OWNER_UUID" 2>&1 | grep -v -E "$LOG_FILTER_PATTERN"
+BACKUP_ARGS=""
+if [ "$BACKUPS_ENABLED" = "true" ]; then
+    mkdir -p "$BACKUP_DIR"
+    BACKUP_ARGS="--backup --backup-dir $BACKUP_DIR --backup-frequency $BACKUP_FREQUENCY --backup-max-count $BACKUP_MAX_COUNT"
+    echo "Backups enabled: $BACKUP_DIR (every ${BACKUP_FREQUENCY}min, max ${BACKUP_MAX_COUNT} backups)"
+fi
+
+java -jar /data/server/HytaleServer.jar -b 0.0.0.0:$PORT --assets /data/server/Assets.zip --session-token "$SESSION_TOKEN" --identity-token "$IDENTITY_TOKEN" --owner-uuid "$OWNER_UUID" $BACKUP_ARGS 2>&1 | grep -v -E "$LOG_FILTER_PATTERN"
