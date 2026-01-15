@@ -1,0 +1,18 @@
+# Data directory
+data/
+
+# Build artifacts
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local development
+docker-compose.override.yml
+.env
