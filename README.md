@@ -1,5 +1,10 @@
 # Hytale Server Docker Container
 
+[![Build and Publish Docker Image](https://github.com/hoobio/hytale-server/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/hoobio/hytale-server/actions/workflows/docker-publish.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/hoobio/hytale-server)](https://hub.docker.com/r/hoobio/hytale-server)
+[![GitHub issues](https://img.shields.io/github/issues/hoobio/hytale-server)](https://github.com/hoobio/hytale-server/issues)
+[![GitHub stars](https://img.shields.io/github/stars/hoobio/hytale-server?style=social)](https://github.com/hoobio/hytale-server/stargazers)
+
 A Docker container for running a Hytale dedicated server with automated OAuth authentication, token refresh, and server management.
 
 ## Quick Start
